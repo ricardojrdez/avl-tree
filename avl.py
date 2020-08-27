@@ -47,7 +47,7 @@ class AVLTree():
         else:
             if duplicated_keys:
                 # duplicated keys allowed. We just fuse the values in a list
-                if root.value is not list:
+                if type(root.value) is not list:
                     aux = root.value
                     root.value = []
                     root.value.append(aux)
