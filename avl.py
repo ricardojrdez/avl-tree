@@ -25,26 +25,35 @@ class AVLTree():
     def __init__(self):
         self.root = None
 
-    def insert(self, key, value=None):
+    def insert(self, key, value=None, duplicated_keys=False):
         '''
         Insert a new node in the AVL tree
+        Receive a parameter to indicate whether duplicated keys are allowed or not
         '''
         newnode = AVLNode(key, value)
         debug("[+] New node created: [{0}; {1}]".format(key, value))
-        self.root = self._insert(self.root, newnode)
+        self.root = self._insert(self.root, newnode, duplicated_keys)
 
-    def _insert(self, root: AVLNode, newnode: AVLNode) -> AVLNode:
+    def _insert(self, root: AVLNode, newnode: AVLNode, duplicated_keys=False) -> AVLNode:
         debug("[+] Inserting {0} (root: {1})".format(newnode, root))
         if not root: # base case, no tree
             return newnode
         elif newnode.key < root.key: # insert at the left, if the new node is smaller
             debug("[+] Going left")
-            root.left = self._insert(root.left, newnode)
+            root.left = self._insert(root.left, newnode, duplicated_keys)
         elif newnode.key > root.key: # if greater, insert at the right
             debug("[+] Going right")
-            root.right = self._insert(root.right, newnode)
+            root.right = self._insert(root.right, newnode, duplicated_keys)
         else:
-            return root # no duplicates allowed
+            if duplicated_keys:
+                # duplicated keys allowed. We just fuse the values in a list
+                if root.value is not list:
+                    aux = root.value
+                    root.value = []
+                    root.value.append(aux)
+                root.value.append(newnode.value)
+            else:
+                return root # no duplicates allowed
 
         # update height after insertion
         root.update_height()
@@ -313,10 +322,12 @@ if __name__ == "__main__":
     print("[*] Data: " + str(randomlist))
     for i in randomlist:
         a.insert(i)
+    
+    a.insert(18, duplicated_keys=True)
 
-    #import pdb; pdb.set_trace()
     a.display()
     a.in_order()
+    #import pdb; pdb.set_trace()
     a.pre_order()
     a.post_order()
     print('Minimum key node: ' + str(a.find_min()))
